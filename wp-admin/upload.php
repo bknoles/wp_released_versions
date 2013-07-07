@@ -1,5 +1,5 @@
 <?php
-/* WP File Upload - original hack by shockingbird.com */
+/* b2 File Upload - original hack by shockingbird.com */
 
 $standalone="1";
 require_once("./admin-header.php");
@@ -14,11 +14,19 @@ $allowed_types = explode(" ", trim($fileupload_allowedtypes));
 
 ?><html>
 <head>
-<title>WordPress &raquo; Upload images/files</title>
+<title>WordPress :: upload images/files</title>
+<link rel="stylesheet" href="<?php echo WPINC; ?>/b2.css" type="text/css">
 <style type="text/css">
 <!--
 body {
-
+	background-image: url('<?php
+if ($is_gecko || $is_macIE) {
+?>../wp-images/bgbookmarklet3.gif<?php
+} else {
+?>../wp-images/bgbookmarklet3.gif<?php
+}
+?>');
+	background-repeat: no-repeat;
 	margin: 30px;
 }
 <?php
@@ -26,7 +34,13 @@ if (!$is_NS4) {
 ?>
 textarea,input,select {
 	background-color: white;
-  border-width: 1px;
+/*<?php if ($is_gecko || $is_macIE) { ?>
+	background-image: url('../wp-images/bgbookmarklet3.gif');
+<?php } elseif ($is_winIE) { ?>
+	background-color: #cccccc;
+	filter: alpha(opacity:80);
+<?php } ?>
+*/  border-width: 1px;
 	border-color: #cccccc;
 	border-style: solid;
 	padding: 2px;

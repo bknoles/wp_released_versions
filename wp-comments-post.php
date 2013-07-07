@@ -49,6 +49,7 @@ if ($comment == 'comment' || $comment == '') {
 
 $now = current_time('mysql');
 
+$comment = strip_tags($comment, $comment_allowed_tags);
 $comment = balanceTags($comment, 1);
 $comment = convert_chars($comment);
 $comment = format_to_post($comment);

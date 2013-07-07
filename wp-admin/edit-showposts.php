@@ -1,6 +1,7 @@
 <?php
-$title = 'Edit Posts';
-require_once('admin-header.php');
+
+require_once('../wp-config.php');
+
 if (!$showposts) {
 	if ($posts_per_page) {
 		$showposts=$posts_per_page;
@@ -35,34 +36,11 @@ if ($previousXstart < 0) {
 
 ob_start();
 ?>
-<ul id="adminmenu2">
-	<li><a href="edit.php" class="current">Latest Posts</a></li>
-	<li><a href="edit-comments.php">Latest Comments</a></li>
-	<li class="last"><a href="moderation.php">Comments Awaiting Moderation</a></li>
-</ul>
-<?php
-get_currentuserinfo();
-$drafts = $wpdb->get_results("SELECT ID, post_title FROM $tableposts WHERE post_status = 'draft' AND post_author = $user_ID");
-if ($drafts) {
-	?>
-	<div class="wrap">
-	<p><strong>Your Drafts:</strong>
-	<?php
-	$i = 0;
-	foreach ($drafts as $draft) {
-		if (0 != $i)
-			echo ', ';
-		$draft->post_title = stripslashes($draft->post_title);
-		if ($draft->post_title == '')
-			$draft->post_title = 'Post #'.$draft->ID;
-		echo "<a href='post.php?action=edit&amp;post=$draft->ID' title='Edit this draft'>$draft->post_title</a>";
-		++$i;
-		}
-	?>.</p>
-	</div>
-	<?php
-}
-?>
+
+<h2 id="posts">Posts</h2>
+
+<p class="anchors">Go to: <a href="post.php#top">Post/Edit</a> | <a href="post.php#posts">Posts</a> | <a href="post.php#comments">Comments</a></p>
+
 <div class="wrap">
 <table width="100%">
   <tr>
@@ -155,14 +133,14 @@ echo $posts_nav_bar;
 <table width="100%">
   <tr>
 	<td valign="top" width="33%">
-		<form name="searchform" action="" method="get">
+		<form name="searchform" action="post.php" method="get">
 			<input type="hidden" name="a" value="s" />
 			<input onfocus="this.value='';" onblur="if (this.value=='') {this.value='search...';}" type="text" name="s" value="search..." size="7" style="width: 100px;" />
 			<input type="submit" name="submit" value="search" class="search" />
 		</form>
 	</td>
     <td valign="top" width="33%" align="center">
-	  <form name="viewcat" action="" method="get">
+	  <form name="viewcat" action="post.php" method="get">
 		<select name="cat" style="width:140px;">
 		<option value="all">All Categories</option>
 		<?php
@@ -180,7 +158,7 @@ echo $posts_nav_bar;
 	  </form>
     </td>
     <td valign="top" width="33%" align="right">
-    <form name="viewarc" action="" method="get">
+    <form name="viewarc" action="post.php" method="get">
 	<?php
 
 	if ($archive_mode == "monthly") {
@@ -254,27 +232,30 @@ echo $posts_nav_bar;
   </tr>
 </table>
 
-<?php
-include(ABSPATH.'wp-blog-header.php');
+	<?php
+	// these lines are b2's "motor", do not alter nor remove them
+	include(ABSPATH.'wp-blog-header.php');
 
-if ($posts) {
-foreach ($posts as $post) { start_wp();
-?>
+	if ($posts) {
+	foreach ($posts as $post) {
+        //$posts_per_page = 10;
+        start_wp(); ?>
 			<p>
-				<strong><?php the_time('Y/m/d @ H:i:s'); ?></strong> [ <a href="edit.php?p=<?php echo $id ?>&c=1"><?php comments_number('no comments', '1 comment', "% comments", true) ?></a>
+				<strong><?php the_time('Y/m/d @ H:i:s'); ?></strong> [ <a href="post.php?p=<?php echo $id ?>&c=1"><?php comments_number('no comments', '1 comment', "% comments", true) ?></a>
 				<?php
 				if (($user_level > $authordata->user_level) or ($user_login == $authordata->user_login)) {
 				echo " - <a href='post.php?action=edit&amp;post=$id";
 				if ($m)
 				echo "&m=$m";
 				echo "'>Edit</a>";
-				echo " - <a href='post.php?action=delete&amp;post=$id' onclick=\"return confirm('You are about to delete this post \'".the_title('','',0)."\'\\n  \'OK\' to delete, \'Cancel\' to stop.')\">Delete</a> ";
+				echo " - <a href='post.php?action=delete&amp;post=$id' onclick=\"return confirm('You are about to delete this post \'".the_title('','',0)."\'\\n  \'Cancel\' to stop, \'OK\' to delete.')\">Delete</a> ";
 				}
 				if ('private' == $post->post_status) echo ' - <strong>Private</strong>';
 				?>
 				]
 				<br />
-				<strong><a href="<?php permalink_link(); ?>" rel="permalink"><?php the_title() ?></a></strong> &#8212; <cite><?php the_author() ?> (<a href="javascript:profile(<?php the_author_ID() ?>)"><?php the_author_nickname() ?></a>)</cite>, in <strong><?php the_category() ?></strong><br />
+				<font color="#999999"><b><a href="<?php permalink_single($siteurl.'/'.$blogfilename); ?>" title="permalink"><?php the_title() ?></a></b> by <b><?php the_author() ?> (<a href="javascript:profile(<?php the_author_ID() ?>)"><?php the_author_nickname() ?></a>)</b>, in <b><?php the_category() ?></b></font><br />
+				<?php permalink_anchor(); ?>
 				<?php
 				the_content();
 				?>
@@ -296,36 +277,24 @@ foreach ($posts as $post) { start_wp();
 				
 					<!-- comment -->
 					<li>
-					    <?php
-						$comment_status = wp_get_comment_status($comment->comment_ID);
-						
-						if ("unapproved" == $comment_status) {
-						    echo "<span class=\"unapproved\">";
-						}
-					    ?>
 							<?php comment_date('Y/m/d') ?> @ <?php comment_time() ?> 
 							<?php 
 							if (($user_level > $authordata->user_level) or ($user_login == $authordata->user_login)) {
 								echo "[ <a href=\"post.php?action=editcomment&amp;comment=".$comment->comment_ID."\">Edit</a>";
-								echo " - <a href=\"post.php?action=deletecomment&amp;p=".$post->ID."&amp;comment=".$comment->comment_ID."\" onclick=\"return confirm('You are about to delete this comment by \'".$comment->comment_author."\'\\n  \'OK\' to delete, \'Cancel\' to stop.')\">Delete</a> ";
-								if ( ('none' != $comment_status) && ($user_level >= 3) ) {
+								echo " - <a href=\"post.php?action=deletecomment&amp;p=".$post->ID."&amp;comment=".$comment->comment_ID."\" onclick=\"return confirm('You are about to delete this comment by \'".$comment->comment_author."\'\\n  \'Cancel\' to stop, \'OK\' to delete.')\">Delete</a> ";
+								if ( ('none' != get_settings("comment_moderation")) && ($user_level >= 3) ) {
 									if ('approved' == wp_get_comment_status($comment->comment_ID)) {
-										echo " - <a href=\"post.php?action=unapprovecomment&amp;p=".$post->ID."&amp;comment=".$comment->comment_ID."\">Unapprove</a> ";
+										echo " - <a href=\"edit.php?action=unapprovecomment&amp;p=".$post->ID."&amp;comment=".$comment->comment_ID."\">Unapprove</a> ";
 									} else {
-										echo " - <a href=\"post.php?action=approvecomment&amp;p=".$post->ID."&amp;comment=".$comment->comment_ID."\">Approve</a> ";
+										echo " - <a href=\"edit.php?action=approvecomment&amp;p=".$post->ID."&amp;comment=".$comment->comment_ID."\">Approve</a> ";
 									}
 								}
-								echo "]";
+								echo " ]";
 							} // end if any comments to show
 							?>
 						<br />
 						<strong><?php comment_author() ?> ( <?php comment_author_email_link() ?> / <?php comment_author_url_link() ?> )</strong> (IP: <?php comment_author_IP() ?>)
 							<?php comment_text() ?>
-					    <?php
-						if ("unapproved" == $comment_status) {
-						    echo "</span>";
-						}
-					    ?>
 					</li>
 					<!-- /comment -->
 
@@ -378,6 +347,5 @@ foreach ($posts as $post) { start_wp();
 
 <?php 
 // uncomment this to show the nav bar at the bottom as well
- echo $posts_nav_bar; 
- include('admin-footer.php');
+// echo $posts_nav_bar; 
 ?>

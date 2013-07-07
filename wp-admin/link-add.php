@@ -56,7 +56,6 @@ for ($i=0; $i<count($wpvarstoreset); $i += 1) {
 }
 $link_url = stripslashes($HTTP_GET_VARS['linkurl']);
 $link_name = htmlentities(stripslashes(urldecode($HTTP_GET_VARS['name'])));
-
 require('admin-header.php');
 ?>
 <ul id="adminmenu2">
@@ -94,7 +93,7 @@ th { text-align: right; }
          </tr>
          <tr>
            <th scope="row">rel:</th>
-           <td><input type="text" name="rel" id="rel" size="80" value=""></td>
+           <td><input type="text" name="rel" id="rel2" size="80" value=""></td>
          </tr>
          <tr>
            <th scope="row"><a href="http://gmpg.org/xfn/">XFN</a>:</th>
@@ -103,7 +102,7 @@ th { text-align: right; }
                <th scope="row"> friendship </th>
                <td>
                  <label for="label">
-                 <input class="valinp" type="radio" name="friendship" value="acquaintance" id="label"  />
+                 <input class="valinp" type="radio" name="friendship" value="acquaintance" id="label" />
       acquaintance</label>
                  <label for="label2">
                  <input class="valinp" type="radio" name="friendship" value="friend" id="label2" />
@@ -181,6 +180,7 @@ th { text-align: right; }
                  <label for="label18">
                  <input class="valinp" type="checkbox" name="romantic" value="sweetheart" id="label18" />
       sweetheart</label>
+                 <label for="spouse"></label>
                </td>
              </tr>
            </table></td>
