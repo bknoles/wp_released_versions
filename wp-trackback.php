@@ -54,8 +54,8 @@ $title     = $wpdb->escape($title);
 $excerpt   = $wpdb->escape($excerpt);
 $blog_name = $wpdb->escape($blog_name);
 
-if ( is_single() || is_page() ) 
-    $tb_id = $posts[0]->ID;
+if ( is_single() || is_page() )
+	$tb_id = $posts[0]->ID;
 
 if ( !intval( $tb_id ) )
 	trackback_response(1, 'I really need an ID for this to work.');
@@ -77,14 +77,14 @@ if ( !empty($tb_url) && !empty($title) && !empty($tb_url) ) {
 	$title =  wp_specialchars( strip_tags( $title ) );
 	$excerpt = strip_tags($excerpt);
 	if ( function_exists('mb_strcut') ) { // For international trackbacks
-		$excerpt = mb_strcut($excerpt, 0, 252, get_settings('blog_charset')) . '...';
-		$title = mb_strcut($title, 0, 250, get_settings('blog_charset')) . '...';
+		$excerpt = mb_strcut($excerpt, 0, 252, get_option('blog_charset')) . '...';
+		$title = mb_strcut($title, 0, 250, get_option('blog_charset')) . '...';
 	} else {
 		$excerpt = (strlen($excerpt) > 255) ? substr($excerpt, 0, 252) . '...' : $excerpt;
 		$title = (strlen($title) > 250) ? substr($title, 0, 250) . '...' : $title;
 	}
 
-	$comment_post_ID = (int) $tb_id;
+	$comment_post_ID = $tb_id;
 	$comment_author = $blog_name;
 	$comment_author_email = '';
 	$comment_author_url = $tb_url;
@@ -93,7 +93,7 @@ if ( !empty($tb_url) && !empty($title) && !empty($tb_url) ) {
 
 	$dupe = $wpdb->get_results("SELECT * FROM $wpdb->comments WHERE comment_post_ID = '$comment_post_ID' AND comment_author_url = '$comment_author_url'");
 	if ( $dupe )
-		trackback_response(1, 'We already have a ping from that URI for this post.');
+		trackback_response(1, 'We already have a ping from that URL for this post.');
 
 	$commentdata = compact('comment_post_ID', 'comment_author', 'comment_author_email', 'comment_author_url', 'comment_content', 'comment_type');
 
