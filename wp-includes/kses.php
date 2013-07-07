@@ -9,22 +9,41 @@
 # Paper mail:  (not at the moment)
 #
 # [kses strips evil scripts!]
-
-$allowedtags = array('b' => array(),
-                 'i' => array(),
-				 'strong' => array(),
-				 'code' => array(),
-				 'acronym' => array('title'),
-				 'abbr' => array('title'),
-				 'em' => array(),
-				 'strike' => array(),
-                 'a' => array('href'  => array('minlen' => 6, 'maxlen' => 250),
-                              'title',
-							  'rel' => array('minlen' => 3, 'maxlen' => 250)),
+if (!defined('CUSTOM_TAGS'))
+	define('CUSTOM_TAGS', false);
+	
+// You can override this in your my-hacks.php file
+if (!CUSTOM_TAGS) {
+$allowedtags = array(
+				'a' => array(
+					'href' => array(),
+					'title' => array(),
+					'rel' => array()),
+				'abbr' => array('title' => array()),
+				'acronym' => array('title' => array()),
+				'b' => array(),
 				'blockquote' => array('cite' => array()),
-				'del' => array('datetime'),
-                 'br' => array());
-
+//				'br' => array(),
+				'code' => array(),
+//				'del' => array('datetime' => array()),
+//				'dd' => array(),
+//				'dl' => array(),
+//				'dt' => array(),
+				'em' => array(),
+				'i' => array(),
+//				'ins' => array('datetime' => array(), 'cite' => array()),
+//				'li' => array(),
+//				'ol' => array(),
+//				'p' => array(),
+//				'q' => array(),
+				'strike' => array(),
+				'strong' => array(),
+//				'sub' => array(),
+//				'sup' => array(),
+//				'u' => array(),
+//				'ul' => array(),
+				);
+}
 function wp_kses($string, $allowed_html, $allowed_protocols =
                array('http', 'https', 'ftp', 'news', 'nntp', 'telnet',
                      'gopher', 'mailto'))
@@ -391,8 +410,6 @@ function wp_kses_no_null($string)
 {
   $string = preg_replace('/\0+/', '', $string);
   $string = preg_replace('/(\\\\0)+/', '', $string);
-
-  $string = preg_replace('/\xad+/', '', $string); # deals with Opera "feature"
 
   return $string;
 } # function wp_kses_no_null

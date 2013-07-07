@@ -1,8 +1,16 @@
 <?php
 $_wp_installing = 1;
-if (file_exists('../wp-config.php')) die("The file 'wp-config.php already exists. If you need to reset any of the configuration items in this file, please delete it first.");
 
-$step = $HTTP_GET_VARS['step'];
+if (file_exists('../wp-config.php')) 
+	die("The file 'wp-config.php' already exists. If you need to reset any of the configuration items in this file, please delete it first.");
+
+if (!file_exists('../wp-config-sample.php'))
+    die('Sorry, I need a wp-config-sample.php file to work from. Please re-upload this file from your WordPress installation.');
+$configFile = file('../wp-config-sample.php');
+
+if (!is_writable('../')) die("Sorry, I can't write to the directory. You'll have to either change the permissions on your WordPress directory or create your wp-config.php manually.");
+
+$step = $_GET['step'];
 if (!$step) $step = 0;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -43,7 +51,6 @@ if (!$step) $step = 0;
 <?php
 
 switch($step) {
-
 	case 0:
 ?> 
 <p>Welcome to WordPress. Before getting started, we need some information on the database. You will need to know the following items before proceeding.</p> 
@@ -54,7 +61,8 @@ switch($step) {
   <li>Database host</li> 
   <li>Table prefix (if you want to run more than one WordPress in a single database) </li>
 </ol> 
-<p>In all likelyhood, these items were supplied to you by your ISP. If you do not have this information, then you will need to contact them before you can continue. If you&#8217;re all ready, <a href="install-config.php?step=1">let&#8217;s go</a>! </p> 
+<p><strong>If for any reason this automatic file creation doens't work, don't worry. All this does is fill in the database information to a configuration file. You may also simply open <code>wp-config-sample.php</code> in a text editor, fill in your information, and save it as <code>wp-config.php</code>. </strong></p>
+<p>In all likelihood, these items were supplied to you by your ISP. If you do not have this information, then you will need to contact them before you can continue. If you&#8217;re all ready, <a href="install-config.php?step=1">let&#8217;s go</a>! </p>
 <?php
 	break;
 
@@ -96,19 +104,22 @@ switch($step) {
 	break;
 	
 	case 2:
-	$dbname = $HTTP_POST_VARS['dbname'];
-    $uname = $HTTP_POST_VARS['uname'];
-    $passwrd = $HTTP_POST_VARS['pwd'];
-    $dbhost = $HTTP_POST_VARS['dbhost'];
-	$prefix = $HTTP_POST_VARS['prefix'];
+	$dbname = $_POST['dbname'];
+    $uname = $_POST['uname'];
+    $passwrd = $_POST['pwd'];
+    $dbhost = $_POST['dbhost'];
+	$prefix = $_POST['prefix'];
 	if (empty($prefix)) $prefix = 'wp_';
-    
-	if (!file_exists('../wp-config-sample.php'))
-		die('Sorry, I need a wp-config-sample.php file to work from. Please re-upload this file from your WordPress installation.');
-    $configFile = file('../wp-config-sample.php');
-    
-	if (!is_writable('../')) die("Sorry, I can't write to the directory. You'll have to either change the permissions on your WordPress directory or create your wp-config.php manually.");
-    $handle = fopen('../wp-config.php', 'w');
+
+    // Test the db connection.
+    define('DB_NAME', $dbname);
+    define('DB_USER', $uname);
+    define('DB_PASSWORD', $passwrd);
+    define('DB_HOST', $dbhost);
+
+    // We'll fail here if the values are no good.
+    require_once('../wp-includes/wp-db.php');
+	$handle = fopen('../wp-config.php', 'w');
 
     foreach ($configFile as $line_num => $line) {
         switch (substr($line,0,16)) {

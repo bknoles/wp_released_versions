@@ -1,30 +1,25 @@
-<?php // rename this to blogger-2-b2.php
+<?php
 
 $wpvarstoreset = array('action');
 for ($i=0; $i<count($wpvarstoreset); $i += 1) {
 	$wpvar = $wpvarstoreset[$i];
 	if (!isset($$wpvar)) {
-		if (empty($HTTP_POST_VARS["$wpvar"])) {
-			if (empty($HTTP_GET_VARS["$wpvar"])) {
+		if (empty($_POST["$wpvar"])) {
+			if (empty($_GET["$wpvar"])) {
 				$$wpvar = '';
 			} else {
-				$$wpvar = $HTTP_GET_VARS["$wpvar"];
+				$$wpvar = $_GET["$wpvar"];
 			}
 		} else {
-			$$wpvar = $HTTP_POST_VARS["$wpvar"];
+			$$wpvar = $_POST["$wpvar"];
 		}
 	}
 }
-
+	require_once('../wp-config.php');
+	require('upgrade-functions.php');
 switch ($action) {
 
 case "step1":
-
-	require_once('../wp-config.php');
-	require_once(ABSPATH.WPINC.'/template-functions.php');
-	require_once(ABSPATH.WPINC.'/functions.php');
-	require_once(ABSPATH.WPINC.'/vars.php');
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
@@ -158,7 +153,7 @@ case "step1":
 	   here's the bugfix: */
 	$result = $wpdb->query("DELETE FROM $tableposts WHERE post_date=\"0000-00-00 00:00:00\"");
 
-
+	upgrade_all();
 	?>
 </ul>
 <strong>Done</strong>
